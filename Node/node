@@ -1,0 +1,13 @@
+1. console.dir()：查看对象并输出到控制台
+2. 查看方法执行时间：console.time(label)||console.timeEnd(label)
+3. 有定时器，也有取消定时器，有暂停定时器，也有回复定时器
+4. require加载模块时，会运行该模块的全部代码
+5. require.resolve,查询完整路径
+6. __filename 和 __dirname
+7. EventEmitter
+8. script命令查看已加载模块
+9. 使用node-inspector来进行调试；node --debug-brk[=port] app.js;node-inspector
+
+Promise:
+
+Async/await:

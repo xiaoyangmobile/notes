@@ -1,0 +1,196 @@
+Activity:
+startActivity
+
+Instrumentation:
+execStartActivity -> ActivityTaskManager.getService().startActivity
+
+ActivityTaskManagerService:
+startActivity -> 
+startActivityAsUser
+// check user
+getActivityStartController().obtainStarter().execute()
+
+ActivityStarter:
+execute ->
+// 
+executeRequest ->
+startActivityUnchecked ->
+startActivityInner ->
+
+RootWindowContainer:
+resumeFocusedStacksTopActivities ->
+
+ActivityStack:
+resumeTopActivityUncheckedLocked ->
+resumeTopActivityInnerLocked ->
+startPausingLocked -> pause the source activity // A
+
+ActivityStackSupervisor: start the new activity // B 
+startSpecificActivity -> 
+... realStartActivityLocked(r, wpc, andResume, checkConfig); // B1
+... mService.startProcessAsync(r, knownToBeDead, isTop, isTop ? "top-activity" : "activity"); // B2
+
+// BBBBBBBBBBBBBB2222222222222222
+** Create Application Process and new ActivityThread, run ActivityThread.main(); create ApplicationThread
+B2 ->
+ActivityTaskManagerService:
+ProcessList:
+startProcess -> Process.start
+
+Process:
+start ->
+
+ZygoteProcess:
+start -> 
+startViaZygote -> 
+openZygoteSocketIfNeeded ->
+attemptConnectionToPrimaryZygote -> 
+
+** then -> create ActivityThread.main()
+ActivityThread:
+main ->
+...  Looper.prepareMainLooper();
+... ActivityThread thread = new ActivityThread(); thread.attach(false, startSeq);
+... Looper.loop();
+
+
+// BBBBBBBBB22222222222
+// BBBBBBBBB11111111111
+ActivityStackSupervisor:
+startSpecificActivity->
+realStartActivityLocked ->
+... clientTransaction.addCallback(LaunchActivityItem.obtain()
+... mService.getLifecycleManager().scheduleTransaction(clientTransaction);
+
+LaunchActivityItem:
+execute ->
+
+ActivityThread:
+handleLaunchActivity -> 
+performLaunchActivity ->
+handleLaunchActivity -> 
+... activity = mInstrumentation.newActivity() 
+... Application app = r.packageInfo.makeApplication()
+... activity.attach -> 
+					Activity:
+					attach ->
+					... mWindow = new PhoneWindow -> mDecor = (DecorView) preservedWindow.getDecorView();
+... activity.setTheme(theme);
+... mInstrumentation.callActivityOnCreate
+
+Instrumentation:
+callActivityOnCreate -> 
+... prePerformCreate -> 
+... activity.performCreate ->
+... postPerformCreate -> ActivityMonitor am = mActivityMonitors.get(i); am.match(activity, activity, activity.getIntent());
+
+
+
+
+
+
+// BBBBBBBBB11111111111
+
+ClientLifecycleManager:
+scheduleTransaction ->  ActivityThread.this.scheduleTransaction(transaction);
+
+ApplicationThread:
+scheduleTransaction->
+ActivityThread:
+scheduleTransaction ->
+ClientTransactionHandler:
+scheduleTransaction -> sendMessage(ActivityThread.H.EXECUTE_TRANSACTION, transaction);
+ActivityThread:
+sendMessage -> mH.sendMessage(msg);
+H:
+case EXECUTE_TRANSACTION:
+                    final ClientTransaction transaction = (ClientTransaction) msg.obj;
+                    mTransactionExecutor.execute(transaction);
+                    if (isSystem()) {
+                        // Client transactions inside system process are recycled on the client side
+                        // instead of ClientLifecycleManager to avoid being cleared before this
+                        // message is handled.
+                        transaction.recycle();
+                    }
+
+
+// AAAAAAAAAAA
+ActivityStack:
+resumeTopActivityUncheckedLocked ->
+resumeTopActivityInnerLocked ->
+startPausingLocked ->
+
+ClientLifecycleManager:
+scheduleTransaction->
+
+ActivityThread:
+scheduleTransaction ->
+
+ClientTransactionHandler:
+scheduleTransaction -> sendMessage(ActivityThread.H.EXECUTE_TRANSACTION, transaction);
+
+ActivityThread:
+performPauseActivity ->
+
+Instrumentation:
+callActivityOnPause ->
+
+Activity:
+performPause ->
+
+
+Activity的暂停：
+ClientLifecycleManager#scheduleTransaction->ApplicationThread#scheduleTransaction->ActivityThread#scheduleTransaction->ActivityThread#sendMessage->H#execute->PauseActivityItem#execute->ActivityThread#handlePauseActivity->ActivityThread#performPauseActivity->Instrumantation#callActivityOnPause->Activity#onPause
+
+Activity的创建：
+ClientLifecycleManager#scheduleTransaction->ActivityThread#handleLaunchActivity->ActivityThread#performLaunchActivity->Instrumentation#newActivity->makeApplication->activity#attach->Instrumentation#callActivityOnCreate
+* activity#attach -> mWindow = new PhoneWindow -> mDecor = (DecorView) preservedWindow.getDecorView();
+* Instrumentation#callActivityOnCreate -> Activity#onCreate -> ActivityMonitor am = mActivityMonitors.get(i); am.match(activity, activity, activity.getIntent());
+
+
+
+
+________
+# Activity Start flow
+## 流程
+startActivity 
+-> 经过Instrumentation\ActivityTaskManagerService\ActivityStack\ActivityStackSupervisor
+-> PauseActivityItem
+-> 启动进程（zygote.process）
+-> LaunchActivityItem
+
+## 阶段详解
+### Create Process
+* ActivityTaskManagerService.startProcessAsync
+* ProcessList.startProcess
+* ZygoteProcess.start 
+* ActivityThread.main() -> Looper.get -> new ActivityThread -> activityThread.attach -> new Instrumentation -> looper.loop
+
+### LaunchActivityItem
+* ActivityTaskManagerService.getLifeCycleManager.scheduleTransaction
+* ClientLifeCycleManager.scheduleTransaction
+* ApplicationThread.scheduleTransaction
+* ActivityThread.scheduleTransaction
+* ClientTransactionHandler.scheduleTransaction -> sendMessage
+* ActivityThread.H.EXECUTE_TRANSACTION
+* LaunchActivityItem.execute
+* ActivityThread.handleLaunchActivity
+* ActivityThread.performLaunchActivity -> Instrumentation.newActivity -> r.packageInfo.makeApplication() -> activity.attach -> new PhoneWindow -> get DecorView
+* Activity.setTheme
+* Instrumentation.callActivityOnCreate 
+
+### PauseActivityItem
+* ActivityTaskManagerService.getLifeCycleManager.scheduleTransaction
+* ClientLifeCycleManager.scheduleTransaction
+* ApplicationThread.scheduleTransaction
+* ActivityThread.scheduleTransaction
+* ClientTransactionHandler.scheduleTransaction -> sendMessage
+* ActivityThread.H.EXECUTE_TRANSACTION
+* PauseActivityItem.execute
+* ActivityThread.handlePauseActivity
+* ActivityThread.performPauseActivity 
+* Instrumentation.callActivityOnPause
+
+
+
+ 

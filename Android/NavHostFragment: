@@ -1,0 +1,14 @@
+NavHostFragment: 
+* new NavHostController
+
+ComponentActivity :
+* lifecycleRegistry
+* OnBackPressedDispatcher 
+
+LifecycleRegistry :
+* lifecycleOwner
+* observeMap
+
+init NavHostFragment -> NavHostController
+
+Nav

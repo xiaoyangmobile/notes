@@ -1,0 +1,41 @@
+View绘制流程
+ActivityThread:
+handleResumeActivity -> 
+
+
+performResumeActivity ->
+
+Activity:
+performResume ->
+// restart
+performRestart ->
+ mInstrumentation.callActivityOnRestart
+
+performStart -> 
+ mInstrumentation.callActivityOnStart
+ // restart
+ActivityThread:
+handleResumeActivity -> 
+ mInstrumentation.callActivityOnResume
+ r.window = r.activity.getWindow();
+ View decor = r.window.getDecorView();
+ ViewRootImpl impl = decor.getViewRootImpl();
+ wm.addView(decor, l);
+
+ WindowManagerImpl:
+ addView ->
+
+ WindowManagerGlobal:
+ addView ->
+ root = new ViewRootImpl
+
+ ViewRootImpl:
+ setView ->
+ requestLayout();
+ requestLayout ->
+ scheduleTraversals -> 
+ doTraversals ->
+ performTraversals ->
+ performMeasure ->
+ performLayout -> 
+ performDraw ->
