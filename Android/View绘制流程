@@ -39,3 +39,24 @@ handleResumeActivity ->
  performMeasure ->
  performLayout -> 
  performDraw ->
+
+------
+ ## ViewGroup
+addView:
+requestLayout();
+invalidate(true);
+addViewInner()
+
+## requestLayout()
+最终是由ViewRootImpl处理requestLayout
+
+## ViewRootImpl
+requestLayout->scheduleTraversals();
+-> doTraversals -> performTraversals();
+### performTraversals:
+-> performMersure -> view.measure -> onMeasure
+-> performLayout -> view.layout -> onLayout
+-> performDraw -> view.drow -> onDraw
+
+## invalidate(true)
+最终调用ViewRootImpl.invalidateChildInParent -> performTraversals -> perfromDraw

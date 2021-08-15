@@ -11,3 +11,21 @@
 Promise:
 
 Async/await:
+
+mkdir express-typescript-app
+cd express-typescript-app
+yarn add express
+yarn add -D typescript @types/express @types/node
+yarn add -D ts-node nodemon
+touch tsconfig.json
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "target": "es6",
+    "rootDir": "./",
+    "outDir": "./build",
+    "strict": true
+  }
+}
+touch .gitignore

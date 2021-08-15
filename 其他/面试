@@ -1,0 +1,6 @@
+快看：OKhttp，EventBus内存泄漏，效率优化。android进程间数据哦共享机制。sharedPreference机制。进程间数据共享;
+快看二面：intent 传递数据；app解压缩后格式；app 签名文件放在哪
+腾讯：bind使用多了会有什么问题；service启动方式和生命周期；bind机制；
+美团：view绘制流程；等待和阻塞区别
+茄子快传：
+字节：点击事件A、B、C View时间透传过程 onClickListenner， Button和view的区别，包括onDown onUp过程；handler机制屏障消息如何判定；AIDL server端如何应对并发

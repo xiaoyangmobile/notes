@@ -23,5 +23,3 @@
 * * 右左：右转父节点，然后执行右右
 * 变色
 
-git checkout dev
-git rebase master

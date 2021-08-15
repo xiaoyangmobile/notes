@@ -1,0 +1,8 @@
+* 内存抖动
+
+* 查看device可用内存：adb shell getprop | grep dalvik.vm.heapsize
+* 查看单个程序最大内存： adb shell getprop | grep heapgrowthlimit
+
+* 内存泄漏：android profile
+* 内存图片
+
